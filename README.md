@@ -5,7 +5,7 @@
 用法示例：  
 ```
   java -jar AndroidUnusedResources.jar unused.txt
-  java -jar cleaner.jar unused.txt
+  java -jar cleaner.jar unused.txt [utf-8(项目编码，可选)]
 ```
   
  1. 不会清理.id资源
