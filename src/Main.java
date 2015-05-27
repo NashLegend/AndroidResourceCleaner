@@ -18,20 +18,26 @@ import org.dom4j.io.XMLWriter;
 public class Main {
 
 	public static void main(String[] args) {
-		if (args.length == 1) {
+		if (args.length > 0) {
+			if (args.length == 2) {
+				encoding = args[1];
+			}
 			unusedCleaner(args[0]);
+		} else {
+			System.out.println("第一个参数是待清理清单文件位置");
+			System.out.println("第二个参数是工程编码，选填，默认utf-8");
 		}
 	}
 
 	static ArrayList<TypeSource> currents = new ArrayList<>();
 	static int round = 0;
+	static String encoding = "utf-8";
 
 	static boolean LastIsPath = false;
 
 	public static void unusedCleaner(String filePath) {
 		ArrayList<TypeSource> files = new ArrayList<>();
 		try {
-			String encoding = "utf-8";
 			File file = new File(filePath);
 			if (file.isFile() && file.exists()) {
 				InputStreamReader read = new InputStreamReader(
@@ -61,6 +67,7 @@ public class Main {
 				System.out.println("noFile");
 			}
 		} catch (Exception e) {
+			System.out.println("Failed");
 			e.printStackTrace();
 		}
 
