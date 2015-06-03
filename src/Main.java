@@ -19,18 +19,11 @@ public class Main {
 
 	public static void main(String[] args) {
 		if (args.length > 0) {
-			if (args.length == 2) {
-				encoding = args[1];
-			}
 			unusedCleaner(args[0]);
-		} else {
-			System.out.println("第一个参数是待清理清单文件位置");
-			System.out.println("第二个参数是工程编码，选填，默认utf-8");
 		}
 	}
 
 	static ArrayList<TypeSource> currents = new ArrayList<>();
-	static int round = 0;
 	static String encoding = "utf-8";
 
 	static boolean LastIsPath = false;
@@ -90,7 +83,7 @@ public class Main {
 			LastIsPath = false;
 			TypeSource typeSource = new TypeSource();
 			typeSource.type = matcher.group(1);
-			typeSource.name = matcher.group(11);
+			typeSource.name = matcher.group(matcher.groupCount());
 			currents.add(typeSource);
 			return true;
 		} else {
@@ -151,7 +144,7 @@ public class Main {
 				if (type == null) {
 					return;
 				}
-				if (type.equals("drawable") || type.equals("layout")) {
+				if (type.equals("drawable") || type.equals("layout") || type.equals("anim")) {
 					new File(path).delete();
 				} else if (type.equals("id") || type.equals("")) {
 					// do nothing
