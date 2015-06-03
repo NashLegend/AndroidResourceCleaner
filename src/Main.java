@@ -74,7 +74,7 @@ public class Main {
 	}
 
 	public static boolean parseType(String lineTxt) {
-		String reg = "((drawable)|(layout)|(dimen)|(string)|(attr)|(style)|(styleable)|(color)|(id))\\s*:\\s*(\\S+)";
+		String reg = "((drawable)|(anim)|(layout)|(dimen)|(string)|(attr)|(style)|(styleable)|(color)|(id))\\s*:\\s*(\\S+)";
 		Matcher matcher = Pattern.compile(reg).matcher(lineTxt);
 		if (matcher.find()) {
 			if (LastIsPath) {
