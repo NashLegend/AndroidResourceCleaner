@@ -59,7 +59,6 @@ public class Main {
 						}
 					}
 					crtLine++;
-
 				}
 				read.close();
 			} else {
@@ -198,6 +197,7 @@ public class Main {
 			if (pathMatchesWithType()) {
 				new File(path).delete();
 			} else {
+				//不放心的话可以跳过，不执行这一块，这种情况很少见，一般是过期的R文件导致
 				if (type.equals("drawable")) {
 					for (int i = 0; i < AllFiles.size(); i++) {
 						File file = AllFiles.get(i);
