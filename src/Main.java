@@ -24,11 +24,13 @@ public class Main {
 	}
 
 	static ArrayList<TypeSource> currents = new ArrayList<>();
+	static final ArrayList<File> AllFiles = new ArrayList<>();
 	static String encoding = "utf-8";
 
 	static boolean LastIsPath = false;
 
 	public static void unusedCleaner(String filePath) {
+		int crtLine = 0;
 		ArrayList<TypeSource> files = new ArrayList<>();
 		try {
 			File file = new File(filePath);
@@ -38,22 +40,26 @@ public class Main {
 				BufferedReader bufferedReader = new BufferedReader(read);
 				String lineTxt = null;
 				while ((lineTxt = bufferedReader.readLine()) != null) {
-					if (!parseType(lineTxt)) {
-						String trim = lineTxt.trim();
-						if (new File(trim).exists()) {
-							for (Iterator<TypeSource> iterator = currents
-									.iterator(); iterator.hasNext();) {
-								TypeSource typeSource = (TypeSource) iterator
-										.next().clone();
-								typeSource.path = trim;
-								typeSource.xmlTag = typeSource.getXmlTag();
-								files.add(typeSource);
+					if (crtLine == 0) {
+						parsellFiles(lineTxt);
+					} else {
+						if (!parseType(lineTxt)) {
+							String trim = lineTxt.trim();
+							if (new File(trim).exists()) {
+								for (Iterator<TypeSource> iterator = currents
+										.iterator(); iterator.hasNext();) {
+									TypeSource typeSource = (TypeSource) iterator
+											.next().clone();
+									typeSource.path = trim;
+									typeSource.xmlTag = typeSource.getXmlTag();
+									files.add(typeSource);
+								}
+								LastIsPath = true;
 							}
-							LastIsPath = true;
-						} else {
-							continue;
 						}
 					}
+					crtLine++;
+
 				}
 				read.close();
 			} else {
@@ -73,7 +79,18 @@ public class Main {
 		System.out.println("done");
 	}
 
+	public static void parsellFiles(String line) {
+		String reg = "Running in:\\s+(\\S+)";
+		Matcher matcher = Pattern.compile(reg).matcher(line);
+		if (matcher.find()) {
+			String path = matcher.group(1);
+			File file = new File(path);
+			scanSourceFiles(file);
+		}
+	}
+
 	public static boolean parseType(String lineTxt) {
+		// drawable/anim/layout/
 		String reg = "((drawable)|(anim)|(layout)|(dimen)|(string)|(attr)|(style)|(styleable)|(color)|(id))\\s*:\\s*(\\S+)";
 		Matcher matcher = Pattern.compile(reg).matcher(lineTxt);
 		if (matcher.find()) {
@@ -117,6 +134,20 @@ public class Main {
 		}
 	}
 
+	public static void scanSourceFiles(File parentFile) {
+		File[] files = parentFile.listFiles();
+		if (files != null) {
+			for (int i = 0; i < files.length; i++) {
+				File file = files[i];
+				if (file.isDirectory()) {
+					scanSourceFiles(file);
+				} else {
+					AllFiles.add(file);
+				}
+			}
+		}
+	}
+
 	static class TypeSource {
 		String type = "";// 类型
 		String name = "";// xml中的name属性
@@ -144,8 +175,15 @@ public class Main {
 				if (type == null) {
 					return;
 				}
-				if (type.equals("drawable") || type.equals("layout") || type.equals("anim")) {
-					new File(path).delete();
+				if (type.equals("drawable") || type.equals("layout")
+						|| type.equals("anim")) {
+					checkAndDeleteFile();
+				} else if (type.equals("color")) {
+					if (pathMatchesWithType()) {
+						new File(path).delete();
+					} else {
+						deleteNodeByName(path, xmlTag, name);
+					}
 				} else if (type.equals("id") || type.equals("")) {
 					// do nothing
 				} else {
@@ -154,6 +192,57 @@ public class Main {
 			} catch (Exception e) {
 
 			}
+		}
+
+		public void checkAndDeleteFile() {
+			if (pathMatchesWithType()) {
+				new File(path).delete();
+			} else {
+				if (type.equals("drawable")) {
+					for (int i = 0; i < AllFiles.size(); i++) {
+						File file = AllFiles.get(i);
+						if (file.getName().equals(name + ".xml")
+								&& file.getParentFile().getName()
+										.startsWith("drawable")) {
+							file.delete();
+						}
+					}
+				} else if (type.equals("layout")) {
+					for (int i = 0; i < AllFiles.size(); i++) {
+						File file = AllFiles.get(i);
+						if (file.getName().equals(name + ".xml")
+								&& file.getParentFile().getName()
+										.startsWith("layout")) {
+							file.delete();
+						}
+					}
+				} else if (type.equals("anim")) {
+					for (int i = 0; i < AllFiles.size(); i++) {
+						File file = AllFiles.get(i);
+						if (file.getName().equals(name + ".xml")
+								&& file.getParentFile().getName()
+										.startsWith("anim")) {
+							file.delete();
+						}
+					}
+				}
+			}
+		}
+
+		public boolean pathMatchesWithType() {
+			boolean flag = false;
+			File file = new File(path);
+			File parentFile = file.getParentFile();
+			if (type.equals("drawable")) {
+				flag = parentFile.getName().startsWith("drawable");
+			} else if (type.equals("layout")) {
+				flag = parentFile.getName().startsWith("layout");
+			} else if (type.equals("anim")) {
+				flag = parentFile.getName().startsWith("anim");
+			} else if (type.equals("color")) {
+				flag = parentFile.getName().startsWith("color");
+			}
+			return flag;
 		}
 
 		public TypeSource clone() {
