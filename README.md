@@ -14,4 +14,4 @@
 ### 仅支持UTF-8编码的工程，非UTF-8的工程没有测试过，如非UTF-8编码的工程，请自行修改源码内的 encoding
 
 
-有空再添加Android Studio支持
+Android Studio现在原生支持此功能
